@@ -1,0 +1,19 @@
+[
+  {
+    "country": "US",
+    "state":"NY",
+    "city": "Albany"
+  },
+
+  {
+    "country": "US",
+    "state":"NY",
+    "city": "Binghamton"
+  },
+  {
+    "country": "US",
+    "state":"MA",
+    "city": "Boston"
+  }
+
+]
