@@ -2,6 +2,7 @@ package com.example.zhangs.mygm2;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -9,12 +10,14 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -32,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,12 +52,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        trackyou();
+        //trackyou();
 
-
+        broadcastIntent(null);
 
     }
 
+    public void broadcastIntent(View view) {
+        Intent intent = new Intent();
+        intent.setAction("com.example.zhangs.mygm2.CUSTOM_INTENT");
+        sendBroadcast(intent);
+    }
 
     /**
      * Manipulates the map once available.
@@ -194,8 +203,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String city = jsonobject.getString("city");
                 String state = jsonobject.getString("state");
                 LatLng cll=getgeoinfo(city+", "+state);
-                mMap.addMarker(new MarkerOptions().position(cll).title("Captical of "+ state+ " is: " + city+"!"));
+//                mMap.addMarker(new MarkerOptions().position(cll).title("Captical of "+ state+ " is: " + city+"!"));
+
+                mMap.addMarker(new MarkerOptions()
+                        .position(cll)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).title("Captical of "+ state+ " is: " + city+"!"));
+
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(cll));
+
+
             }
         } catch (IOException ex) {
             //ex.printStackTrace();
@@ -244,6 +260,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+
     private void trackyou() {
 
         String filename = "history.json";
@@ -265,14 +282,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         StringBuilder sb=null;
 
         try{
-        FileInputStream fis = openFileInput(FILENAME);
+            FileInputStream fis = openFileInput(FILENAME);
             InputStreamReader isr = new InputStreamReader(fis);
-        BufferedReader bufferedReader = new BufferedReader(isr);
-        sb= new StringBuilder();
-        String line;
+            BufferedReader bufferedReader = new BufferedReader(isr);
+            sb= new StringBuilder();
+            String line;
 
             while ((line = bufferedReader.readLine()) != null) {
+
                 sb.append(line);
+
+                LatLng cll=getgeoinfo(line);
+                Date today = new Date();
+                mMap.addMarker(new MarkerOptions().position(cll).title(line+today));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(cll));
+
+
             }
         }
         catch(Exception e)
@@ -280,9 +305,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
-        LatLng cll=getgeoinfo(sb.toString());
-        mMap.addMarker(new MarkerOptions().position(cll).title("03/28/2017"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(cll));
+        String address=sb.toString();
+        // just show you how to use StringbBuilder and convert to string
+
 
     }
 }
